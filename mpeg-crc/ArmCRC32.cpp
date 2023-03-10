@@ -49,13 +49,21 @@ uint32_t ArmCRC32::value() const
 
 void ArmCRC32::add(const void* data, size_t size)
 {
+    // Add 8-bit values until an address aligned on 8 bytes.
     const uint8_t* cp8 = reinterpret_cast<const uint8_t*>(data);
-    while (size != 0 && (uintptr_t(cp8) & 7) != 0) {
+    while (size != 0 && (uint64_t(cp8) & 0x03) != 0) {
         crcAdd8(_fcs, *cp8++);
         --size;
     }
 
+    // Add 64-bit values until an address aligned on 64 bytes.
     const uint64_t* cp64 = reinterpret_cast<const uint64_t*>(cp8);
+    while (size >= 8 && (uint64_t(cp64) & 0x07) != 0) {
+        crcAdd64(_fcs, *cp64++);
+        size -= 8;
+    }
+
+    // Add 8 * 64-bit values until less than 64 bytes (manual loop unroll).
     while (size >= 64) {
         crcAdd64(_fcs, *cp64++);
         crcAdd64(_fcs, *cp64++);
@@ -67,12 +75,15 @@ void ArmCRC32::add(const void* data, size_t size)
         crcAdd64(_fcs, *cp64++);
         size -= 64;
     }
+
+    // Add 64-bit values until less than 8 bytes.
     while (size >= 8) {
         crcAdd64(_fcs, *cp64++);
         size -= 8;
     }
 
-    cp8 = reinterpret_cast<const unsigned char*>(cp64);
+    // Add remaining bytes.
+    cp8 = reinterpret_cast<const uint8_t*>(cp64);
     while (size--) {
         crcAdd8(_fcs, *cp8++);
     }

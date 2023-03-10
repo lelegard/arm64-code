@@ -36,7 +36,7 @@ void test(const std::string& title, const void* data, size_t size)
 
     std::cout << "Class ArmCRC32, one chunk:  CRC = 0x"
               << std::hex << std::setw(8) << std::setfill('0') << c2.value() << std::dec
-              << (c2.value() == c1.value() ? " (passed)" : " (FAILED") << std::endl;
+              << (c2.value() == c1.value() ? " (passed)" : " (FAILED)") << std::endl;
 
     c2.reset();
     c2.add(data, size / 3);
