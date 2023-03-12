@@ -5,7 +5,7 @@ ARFLAGS   = rc
 
 # Force SHA1 instructions on Linux (enabled by default on macOS).
 ifeq ($(SYSTEM),Linux)
-    CXXFLAGS += -march=armv8-a+sha1
+    CXXFLAGS += -march=armv8-a+crypto
 endif
 
 SOURCES   := $(wildcard *.cpp)

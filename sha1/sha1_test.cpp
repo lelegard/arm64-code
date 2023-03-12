@@ -13,7 +13,6 @@
 #include <ios>
 #include <iomanip>
 #include <iostream>
-#include <cstdlib>
 
 struct TestData {
     size_t size;

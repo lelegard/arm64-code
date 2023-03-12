@@ -11,6 +11,7 @@
 #pragma once
 #include <cstdlib>
 #include <cstdint>
+#include <cstring>
 #include <algorithm>
 #if defined(__linux__)
 #include <byteswap.h>
