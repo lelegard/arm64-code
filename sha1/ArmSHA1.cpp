@@ -188,13 +188,13 @@ void ArmSHA1::compress(const uint8_t* buf)
     ABCD = vsha1pq_u32(ABCD, E, TMP0);
     TMP0 = vaddq_u32(MSG2, C3);
     MSG3 = vsha1su1q_u32(MSG3, MSG2);
-    MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
+    // MSG0 = vsha1su0q_u32(MSG0, MSG1, MSG2);
 
     // Rounds 68-71
     E = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
     ABCD = vsha1pq_u32(ABCD, E1, TMP1);
     TMP1 = vaddq_u32(MSG3, C3);
-    MSG0 = vsha1su1q_u32(MSG0, MSG3);
+    // MSG0 = vsha1su1q_u32(MSG0, MSG3);
 
     // Rounds 72-75
     E1 = vsha1h_u32(vgetq_lane_u32(ABCD, 0));
