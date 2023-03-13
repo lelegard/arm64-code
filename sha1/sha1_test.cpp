@@ -85,8 +85,8 @@ int main(int argc, char* argv[])
         const bool arm_ok = ::memcmp(hash, test->hash, sizeof(hash)) == 0;
 
         std::cout << std::setw(5) << test->size
-                  << " bytes, SHA1: " << (ok ? "passed" : "failed")
-                  << ", ArmSHA1: " << (arm_ok ? "passed" : "failed")
+                  << " bytes, SHA1: " << (ok ? "passed" : "FAILED")
+                  << ", ArmSHA1: " << (arm_ok ? "passed" : "FAILED")
                   << std::endl;
     }
 

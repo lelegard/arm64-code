@@ -11,3 +11,4 @@ MAKEFLAGS += --no-print-directory
 default test perf clean:
 	$(MAKE) $@ -C mpeg-crc
 	$(MAKE) $@ -C sha1
+	$(MAKE) $@ -C aes
