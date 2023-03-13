@@ -14,6 +14,7 @@
 #include <ios>
 #include <iomanip>
 #include <iostream>
+#include <arm_neon.h>
 
 struct TestData {
     size_t size;
@@ -66,6 +67,8 @@ int main(int argc, char* argv[])
     SHA1 sha;
     ArmSHA1 arm_sha;
     uint8_t hash[SHA1::HASH_SIZE];
+
+    std::cout << "sizeof(uint32x4_t) = " << sizeof(uint32x4_t) << " bytes" << std::endl;
 
     for (auto test = test_data; test->size > 0; ++test) {
 
