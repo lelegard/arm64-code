@@ -5,3 +5,8 @@ include ../Makefile.inc
 ifeq ($(SYSTEM),Linux)
     CXXFLAGS += -march=armv8-a+crc
 endif
+
+test: crc_test
+	./crc_test
+perf: crc_perf
+	./crc_perf
