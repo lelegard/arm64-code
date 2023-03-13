@@ -20,7 +20,7 @@
 #define TS_CONST64(n)  (int64_t(n##LL))
 #define TS_UCONST64(n) (uint64_t(n##ULL))
 
-inline uint32_t ByteSwap32(uint32_t x)
+inline __attribute__((always_inline)) uint32_t ByteSwap32(uint32_t x)
 {
 #if defined(__aarch64__) || defined(__arm64__)
     asm("rev %w0, %w0" : "+r" (x)); return x;
@@ -31,7 +31,7 @@ inline uint32_t ByteSwap32(uint32_t x)
 #endif
 }
 
-inline uint64_t ByteSwap64(uint64_t x)
+inline __attribute__((always_inline)) uint64_t ByteSwap64(uint64_t x)
 {
 #if defined(__aarch64__) || defined(__arm64__)
     asm("rev %0, %0" : "+r" (x)); return x;
@@ -51,12 +51,12 @@ inline uint64_t ByteSwap64(uint64_t x)
 }
 
 // Assume little endian
-inline uint32_t GetUInt32(const void* p) { return ByteSwap32(*(static_cast<const uint32_t*>(p))); }
-inline uint64_t GetUInt64(const void* p) { return ByteSwap64(*(static_cast<const uint64_t*>(p))); }
-inline void PutUInt32(void* p, uint32_t i) { *(static_cast<uint32_t*>(p)) = ByteSwap32(i); }
-inline void PutUInt64(void* p, uint64_t i) { *(static_cast<uint64_t*>(p)) = ByteSwap64(i); }
+inline __attribute__((always_inline)) uint32_t GetUInt32(const void* p) { return ByteSwap32(*(static_cast<const uint32_t*>(p))); }
+inline __attribute__((always_inline)) uint64_t GetUInt64(const void* p) { return ByteSwap64(*(static_cast<const uint64_t*>(p))); }
+inline __attribute__((always_inline)) void PutUInt32(void* p, uint32_t i) { *(static_cast<uint32_t*>(p)) = ByteSwap32(i); }
+inline __attribute__((always_inline)) void PutUInt64(void* p, uint64_t i) { *(static_cast<uint64_t*>(p)) = ByteSwap64(i); }
 
-inline uint32_t ROLc(uint32_t word, const int i)
+inline __attribute__((always_inline)) uint32_t ROLc(uint32_t word, const int i)
 {
 #if !defined(__aarch64__) && !defined(__arm64__)
     return ((word << (i&31)) | ((word&0xFFFFFFFFUL) >> (32-(i&31)))) & 0xFFFFFFFFUL;

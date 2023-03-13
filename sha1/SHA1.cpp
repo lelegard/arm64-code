@@ -47,38 +47,36 @@ bool SHA1::init()
 
 void SHA1::compress(const uint8_t* buf)
 {
-    uint32_t a, b, c, d, e;
-    uint32_t i, W[80];
+    // Copy state
+    uint32_t a = _state[0];
+    uint32_t b = _state[1];
+    uint32_t c = _state[2];
+    uint32_t d = _state[3];
+    uint32_t e = _state[4];
 
-    // Copy the state into 512-bits into W[0..15]
+    // Copy input block (512 bits, 64 bytes, 16 uint32) into W[0..15]
+    uint32_t i, W[80];
     for (i = 0; i < 16; i++) {
         W[i] = GetUInt32(buf + 4*i);
     }
 
-    // Copy state
-    a = _state[0];
-    b = _state[1];
-    c = _state[2];
-    d = _state[3];
-    e = _state[4];
-
-    // Expand it
+    // Expand it over 320 bytes (80 uint32)
     for (i = 16; i < 80; i++) {
         W[i] = ROLc(W[i-3] ^ W[i-8] ^ W[i-14] ^ W[i-16], 1);
     }
 
     // Compress
-    #define F0(x,y,z)  (z ^ (x & (y ^ z)))
-    #define F1(x,y,z)  (x ^ y ^ z)
-    #define F2(x,y,z)  ((x & y) | (z & (x | y)))
-    #define F3(x,y,z)  (x ^ y ^ z)
+    #define F0(x,y,z) (z ^ (x & (y ^ z)))
+    #define F1(x,y,z) (x ^ y ^ z)
+    #define F2(x,y,z) ((x & y) | (z & (x | y)))
+    #define F3(x,y,z) (x ^ y ^ z)
 
-    // Round one
     #define FF0(a,b,c,d,e,i) e = (ROLc(a, 5) + F0(b,c,d) + e + W[i] + 0x5a827999UL); b = ROLc(b, 30)
     #define FF1(a,b,c,d,e,i) e = (ROLc(a, 5) + F1(b,c,d) + e + W[i] + 0x6ed9eba1UL); b = ROLc(b, 30)
     #define FF2(a,b,c,d,e,i) e = (ROLc(a, 5) + F2(b,c,d) + e + W[i] + 0x8f1bbcdcUL); b = ROLc(b, 30)
     #define FF3(a,b,c,d,e,i) e = (ROLc(a, 5) + F3(b,c,d) + e + W[i] + 0xca62c1d6UL); b = ROLc(b, 30)
 
+    // Round one
     i = 0;
     while (i < 20) {
         FF0(a,b,c,d,e,i++);
@@ -141,21 +139,22 @@ void SHA1::compress(const uint8_t* buf)
 
 bool SHA1::add(const void* data, size_t size)
 {
-    const uint8_t* in = reinterpret_cast<const uint8_t*>(data);
-    size_t n;
-
     if (_curlen >= sizeof(_buf)) {
-        return false;
+        return false; // invalid internal state
     }
+
+    const uint8_t* in = reinterpret_cast<const uint8_t*>(data);
     while (size > 0) {
         if (_curlen == 0 && size >= BLOCK_SIZE) {
+            // Compress one 512-bit block directly from user's buffer.
             compress(in);
             _length += BLOCK_SIZE * 8;
             in += BLOCK_SIZE;
             size -= BLOCK_SIZE;
         }
         else {
-            n = std::min(size, (BLOCK_SIZE - _curlen));
+            // Partial block, Accumulate input data in internal buffer.
+            const size_t n = std::min(size, (BLOCK_SIZE - _curlen));
             ::memcpy(_buf + _curlen, in, n);
             _curlen += n;
             in += n;
@@ -180,7 +179,7 @@ bool SHA1::add(const void* data, size_t size)
 bool SHA1::getHash(void* hash, size_t bufsize, size_t* retsize)
 {
     if (_curlen >= sizeof(_buf) || bufsize < HASH_SIZE) {
-        return false;
+        return false; // invalid internal state or invalid input
     }
 
     // Increase the length of the message
@@ -189,31 +188,27 @@ bool SHA1::getHash(void* hash, size_t bufsize, size_t* retsize)
     // Append the '1' bit
     _buf[_curlen++] = 0x80;
 
-    // If the length is currently above 56 bytes we append zeros then compress.
-    // Then we can fall back to padding zeros and length encoding like normal.
+    // Pad with zeroes and append 64-bit message length in bits.
+    // If the length is currently above 56 bytes (no room for message length), append zeroes then compress.
     if (_curlen > 56) {
-        while (_curlen < 64) {
-            _buf[_curlen++] = 0;
-        }
+        bzero(_buf + _curlen, 64 - _curlen);
         compress(_buf);
         _curlen = 0;
     }
 
-    // Pad upto 56 bytes of zeroes
-    while (_curlen < 56) {
-        _buf[_curlen++] = 0;
-    }
-
-    // Store length
+    // Pad up to 56 bytes with zeroes and append 64-bit message length in bits.
+    bzero(_buf + _curlen, 56 - _curlen);
     PutUInt64(_buf + 56, _length);
     compress(_buf);
 
     // Copy output
     uint8_t* out = reinterpret_cast<uint8_t*>(hash);
-    for (size_t i = 0; i < 5; i++) {
-        PutUInt32(out + 4*i, _state[i]);
-    }
-
+    PutUInt32(out, _state[0]);
+    PutUInt32(out + 4, _state[1]);
+    PutUInt32(out + 8, _state[2]);
+    PutUInt32(out + 12, _state[3]);
+    PutUInt32(out + 16, _state[4]);
+    
     if (retsize != nullptr) {
         *retsize = HASH_SIZE;
     }

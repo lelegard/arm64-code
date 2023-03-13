@@ -10,6 +10,7 @@
 //----------------------------------------------------------------------------
 
 #include "SHA1.h"
+#include "ArmSHA1.h"
 #include <ios>
 #include <iomanip>
 #include <iostream>
@@ -63,14 +64,27 @@ static const TestData test_data[] = {
 int main(int argc, char* argv[])
 {
     SHA1 sha;
+    ArmSHA1 arm_sha;
     uint8_t hash[SHA1::HASH_SIZE];
 
     for (auto test = test_data; test->size > 0; ++test) {
+
+        bzero(hash, sizeof(hash));
         sha.init();
         sha.add(test->data, test->size);
         sha.getHash(hash, sizeof(hash));
         const bool ok = ::memcmp(hash, test->hash, sizeof(hash)) == 0;
-        std::cout << test->size << " bytes, SHA1: " << (ok ? "passed" : "failed") << std::endl;
+
+        bzero(hash, sizeof(hash));
+        arm_sha.init();
+        arm_sha.add(test->data, test->size);
+        arm_sha.getHash(hash, sizeof(hash));
+        const bool arm_ok = ::memcmp(hash, test->hash, sizeof(hash)) == 0;
+
+        std::cout << std::setw(5) << test->size
+                  << " bytes, SHA1: " << (ok ? "passed" : "failed")
+                  << ", ArmSHA1: " << (arm_ok ? "passed" : "failed")
+                  << std::endl;
     }
 
     return EXIT_SUCCESS;
