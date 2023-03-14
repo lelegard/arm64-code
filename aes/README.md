@@ -5,8 +5,9 @@ This sample code compares the results and performances of AES encryptions and de
 The class `AES` is a standard portable implementation. The class `ArmAES`
 uses the Arm64 AES instructions.
 
-On an Apple M1 processor, the specialized Arm64 implementation is 17 to 20 times faster
-than the portable implementation:
+On an Apple M1 processor (Apple Firestorm / Icestorm cores), on an Ubuntu 22.10
+virtual machine with GCC 12.2, the specialized Arm64 implementation is 17 to 20
+times faster than the portable implementation:
 ~~~
 $ ./aes_perf 100000000
 
@@ -31,7 +32,9 @@ Class ArmAES: AES-256 decrypt, time: 282 ms
 Performance ratio: encrypt: 19.1601, decrypt: 20.4752
 ~~~
 
-On an AWS Graviton 3 processor (Arm Neoverse V1 core), the performance ratio is similar:
+On an AWS Graviton 3 processor (Arm Neoverse V1 cores), on an Ubuntu 22.04
+virtual machine with GCC 11.3, the specialized Arm64 implementation is 18 to 20
+times faster than the portable implementation:
 ~~~
 $ ./aes_perf 100000000
 
@@ -58,7 +61,7 @@ Performance ratio: encrypt: 17.7494, decrypt: 18.1062
 
 In all cases, using the accelerated AES instructions, the encryption and
 decryption time are similar or even identical. Using the portable code,
-the decryption is slightly slower than encryption on the M1 but much
+the decryption is slightly slower than encryption, especially on the Apple M1,
 less significantly on the Graviton 3.
 
 On the Apple M1, the performance gain of the accelerated AES instructions
