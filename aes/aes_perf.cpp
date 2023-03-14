@@ -103,10 +103,10 @@ int main(int argc, char* argv[])
         const uint64_t time1e = get_user_ms() - start;
 
         if (::memcmp(output, test->cipher, sizeof(output)) == 0) {
-            std::cout << "Class SHA1:    AES-" << (test->key_size * 8) << " encrypt, time: " << time1e << " ms" << std::endl;
+            std::cout << "Class AES:    AES-" << (test->key_size * 8) << " encrypt, time: " << time1e << " ms" << std::endl;
         }
         else {
-            std::cout << "Class SHA1:    AES-" << (test->key_size * 8) << " encrypt FAILED" << std::endl;
+            std::cout << "Class AES:    AES-" << (test->key_size * 8) << " encrypt FAILED" << std::endl;
         }
 
         start = get_user_ms();
@@ -116,10 +116,10 @@ int main(int argc, char* argv[])
         const uint64_t time1d = get_user_ms() - start;
 
         if (::memcmp(output, test->plain, sizeof(output)) == 0) {
-            std::cout << "Class SHA1:    AES-" << (test->key_size * 8) << " decrypt, time: " << time1d << " ms" << std::endl;
+            std::cout << "Class AES:    AES-" << (test->key_size * 8) << " decrypt, time: " << time1d << " ms" << std::endl;
         }
         else {
-            std::cout << "Class SHA1:    AES-" << (test->key_size * 8) << " decrypt FAILED" << std::endl;
+            std::cout << "Class AES:    AES-" << (test->key_size * 8) << " decrypt FAILED" << std::endl;
         }
 
         start = get_user_ms();
@@ -129,10 +129,10 @@ int main(int argc, char* argv[])
         const uint64_t time2e = get_user_ms() - start;
 
         if (::memcmp(output, test->cipher, sizeof(output)) == 0) {
-            std::cout << "Class ArmSHA1: AES-" << (test->key_size * 8) << " encrypt, time: " << time2e << " ms" << std::endl;
+            std::cout << "Class ArmAES: AES-" << (test->key_size * 8) << " encrypt, time: " << time2e << " ms" << std::endl;
         }
         else {
-            std::cout << "Class ArmSHA1: AES-" << (test->key_size * 8) << " encrypt FAILED" << std::endl;
+            std::cout << "Class ArmAES: AES-" << (test->key_size * 8) << " encrypt FAILED" << std::endl;
         }
 
         start = get_user_ms();
@@ -142,10 +142,10 @@ int main(int argc, char* argv[])
         const uint64_t time2d = get_user_ms() - start;
 
         if (::memcmp(output, test->plain, sizeof(output)) == 0) {
-            std::cout << "Class ArmSHA1: AES-" << (test->key_size * 8) << " decrypt, time: " << time2d << " ms" << std::endl;
+            std::cout << "Class ArmAES: AES-" << (test->key_size * 8) << " decrypt, time: " << time2d << " ms" << std::endl;
         }
         else {
-            std::cout << "Class ArmSHA1: AES-" << (test->key_size * 8) << " decrypt FAILED" << std::endl;
+            std::cout << "Class ArmAES: AES-" << (test->key_size * 8) << " decrypt FAILED" << std::endl;
         }
 
         std::cout << "Performance ratio: encrypt: " << (time2e > 0 ? double(time1e) / double(time2e) : 0.0)
