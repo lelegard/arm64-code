@@ -1,15 +1,10 @@
 default: execs
 include ../Makefile.inc
 
-# Impossible to compile SHA512 intrinsics with GCC. See:
-# https://stackoverflow.com/questions/75745202/arm64-sha512-intrinsics-fail-to-compile-with-gcc-target-specific-option-mismat
-ifeq ($(SYSTEM),Linux)
-    CXX = clang
-endif
-
 # Force SHA512 instructions on Linux (enabled by default on macOS).
+# Note that we need "armv8.2-a+sha3", omiting the ".2" does not work.
 ifeq ($(SYSTEM),Linux)
-    CXXFLAGS += -march=armv8-a+sha3
+    CXXFLAGS += -march=armv8.2-a+sha3
 endif
 
 test: sha512_test
