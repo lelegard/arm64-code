@@ -17,10 +17,14 @@ Performance ratio: 10.3618
 ~~~
 
 On an AWS Graviton 3 processor (Arm Neoverse V1 cores), on an Ubuntu 22.04
-virtual machine with clang 14.0.0, the specialized Arm64 implementation is XXXX times
+virtual machine with clang 14.0.0, the specialized Arm64 implementation is 6.5 times
 faster than the portable implementation:
 ~~~
 $ ./sha256_perf 10000000
+SHA-256 performance test, 10000000 iterations, 256 bytes
+Class SHA256:    time: 13802 ms
+Class ArmSHA256: time: 2111 ms, same hash
+Performance ratio: 6.53813
 ~~~
 
 Note: We used clang instead of gcc since it is currently impossible to compile SHA256 intrinsics with gcc. See
