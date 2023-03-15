@@ -1,0 +1,83 @@
+//----------------------------------------------------------------------------
+//
+// Arm64 CPU system registers tools
+// Copyright (c) 2023, Thierry Lelegard
+// BSD-2-Clause license, see the LICENSE file.
+//
+// Somme common definitions (see project TSDuck).
+//
+//----------------------------------------------------------------------------
+
+#pragma once
+#include <cstdlib>
+#include <cstdint>
+#include <cstring>
+#include <algorithm>
+#if defined(__linux__)
+#include <byteswap.h>
+#endif
+
+#define TS_CONST64(n)  (int64_t(n##LL))
+#define TS_UCONST64(n) (uint64_t(n##ULL))
+
+inline __attribute__((always_inline)) uint32_t ByteSwap32(uint32_t x)
+{
+#if defined(__aarch64__) || defined(__arm64__)
+    asm("rev %w0, %w0" : "+r" (x)); return x;
+#elif defined(__linux__)
+    return bswap_32(x);
+#else
+    return (x << 24) | ((x << 8) & 0x00FF0000) | ((x >> 8) & 0x0000FF00) | (x >> 24);
+#endif
+}
+
+inline __attribute__((always_inline)) uint64_t ByteSwap64(uint64_t x)
+{
+#if defined(__aarch64__) || defined(__arm64__)
+    asm("rev %0, %0" : "+r" (x)); return x;
+#elif defined(__linux__)
+    return bswap_64(x);
+#else
+    return
+        ((x << 56)) |
+        ((x << 40) & TS_UCONST64(0x00FF000000000000)) |
+        ((x << 24) & TS_UCONST64(0x0000FF0000000000)) |
+        ((x <<  8) & TS_UCONST64(0x000000FF00000000)) |
+        ((x >>  8) & TS_UCONST64(0x00000000FF000000)) |
+        ((x >> 24) & TS_UCONST64(0x0000000000FF0000)) |
+        ((x >> 40) & TS_UCONST64(0x000000000000FF00)) |
+        ((x >> 56));
+#endif
+}
+
+// Assume little endian
+inline __attribute__((always_inline)) uint32_t GetUInt32(const void* p) { return ByteSwap32(*(static_cast<const uint32_t*>(p))); }
+inline __attribute__((always_inline)) uint64_t GetUInt64(const void* p) { return ByteSwap64(*(static_cast<const uint64_t*>(p))); }
+inline __attribute__((always_inline)) void PutUInt32(void* p, uint32_t i) { *(static_cast<uint32_t*>(p)) = ByteSwap32(i); }
+inline __attribute__((always_inline)) void PutUInt64(void* p, uint64_t i) { *(static_cast<uint64_t*>(p)) = ByteSwap64(i); }
+
+inline __attribute__((always_inline)) uint32_t RORc(uint32_t word, const int i)
+{
+#if !defined(__aarch64__) && !defined(__arm64__)
+    return (((word&0xFFFFFFFFUL) >> (i&31)) | (word << (32-(i&31)))) & 0xFFFFFFFFUL;
+#elif defined(DEBUG)
+    asm("ror %w0, %w0, %w1" : "+r" (word) : "r" (i));
+    return word;
+#else
+    asm("ror %w0, %w0, %1" : "+r" (word) : "I" (i));
+    return word;
+#endif
+}
+
+inline __attribute__((always_inline)) uint64_t ROR64c(uint64_t word, const int i)
+{
+#if !defined(__aarch64__) && !defined(__arm64__)
+    return ((word & TS_UCONST64(0xFFFFFFFFFFFFFFFF)) >> (i&63)) | (word << (64-(i&63)));
+#elif defined(DEBUG)
+    asm("ror %0, %0, %1" : "+r" (word) : "r" (uint64_t(i)));
+    return word;
+#else
+    asm("ror %0, %0, %1" : "+r" (word) : "I" (uint64_t(i)));
+    return word;
+#endif
+}

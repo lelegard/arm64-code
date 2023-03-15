@@ -7,8 +7,7 @@
 #----------------------------------------------------------------------------
 
 MAKEFLAGS += --no-print-directory
+SUBDIRS := $(sort $(filter-out .git%,$(notdir $(shell find . -mindepth 1 -maxdepth 1 -type d))))
 
 default test perf clean:
-	$(MAKE) $@ -C crc
-	$(MAKE) $@ -C sha1
-	$(MAKE) $@ -C aes
+	for d in $(SUBDIRS); do $(MAKE) $@ -C $$d; done
