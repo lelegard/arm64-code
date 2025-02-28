@@ -66,3 +66,28 @@ less significantly on the Graviton 3.
 
 On the Apple M1, the performance gain of the accelerated AES instructions
 is higher with longer keys while this is the opposite on the Graviton 3.
+
+On a nVidia Grace processor (Arm Neoverse V2 cores), on RHEL 9.5 with GCC 11.5,                                                    the specialized Arm64 implementation is 20 to 23 times faster than the portable implementation:
+~~~
+$ ./aes_perf 100000000
+
+AES performance test, 100000000 iterations per operation 
+
+Class AES:    AES-128 encrypt, time: 4222 ms
+Class AES:    AES-128 decrypt, time: 4342 ms
+Class ArmAES: AES-128 encrypt, time: 186 ms
+Class ArmAES: AES-128 decrypt, time: 187 ms
+Performance ratio: encrypt: 22.6989, decrypt: 23.2193
+
+Class AES:    AES-192 encrypt, time: 5046 ms
+Class AES:    AES-192 decrypt, time: 5101 ms
+Class ArmAES: AES-192 encrypt, time: 221 ms
+Class ArmAES: AES-192 decrypt, time: 218 ms
+Performance ratio: encrypt: 22.8326, decrypt: 23.3991
+
+Class AES:    AES-256 encrypt, time: 5855 ms
+Class AES:    AES-256 decrypt, time: 5947 ms
+Class ArmAES: AES-256 encrypt, time: 289 ms
+Class ArmAES: AES-256 decrypt, time: 292 ms
+Performance ratio: encrypt: 20.2595, decrypt: 20.3664
+~~~
